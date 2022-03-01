@@ -4,7 +4,7 @@ Data used in the paper "Mobilities injustice and regional inequalities in cyclin
 The dataset comprises several types of data used for the spatial model in the paper. 
 I created the dataset using socio-economic and regional data from the London Datastore (Greater London Authority, 2019) 
 and the transportation data (Transport for London, 2019). The outcome variable is taken from the most recent 2011 census 
-(Greater London Authority, 2019). In the case of a few variables data were imputed for one borough.
+(Greater London Authority, 2019). 
 
 Once the article is accepted for publication, the repository will be updated with:
 * the final version of a dataset
