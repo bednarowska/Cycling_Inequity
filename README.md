@@ -10,4 +10,4 @@ and the transportation data (Transport for London, 2019). The outcome variable i
 Once the article is published, the repository will be updated with:
 * the final version of a dataset
 * code to run spatial model
-* detailed instructions how to use the code and data.
+* instructions how to use the code and data.
