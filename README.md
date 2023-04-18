@@ -12,4 +12,4 @@ Once the article is published, the repository will be updated with:
 * code to run spatial model
 * instructions how to use the code and data.
 
-Bednarowska-Michaiel, Z. (2023). Ethnic inequalities in cycling to work in London - mobilities injustice and regional approach. Regional Studies, Regional Science. http://dx.doi.org/10.1080/21681376.2023.2186802.
+Bednarowska-Michaiel, Z. (2023). Ethnic inequalities in cycling to work in London - mobilities injustice and regional approach. Regional Studies, Regional Science, VOL. 10, NO. 1, 475–488. http://dx.doi.org/10.1080/21681376.2023.2186802.
