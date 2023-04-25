@@ -1,0 +1,96 @@
+#R script for the spatial model in "Ethnic inequalities in cycling to work in London 
+# - mobility injustice and regional approach" by Zofia Bednarowska-Michaiel
+#http://dx.doi.org/10.1080/21681376.2023.2186802
+
+# 1 Libraries -------------------------------------------------------
+setwd()
+library(sp)
+library(spdep)
+library(rgdal)
+library(shapefiles)
+
+# 2 Data  -------------------------------------------------------
+data3D <- read.csv("RSRS2022_ZBM_Data_v3.csv", header=TRUE, dec=".", sep=",")
+#is.data.frame(data3D)
+is.na(data3D)<-"."
+attach(data3D)
+summary(data3D)
+
+# 4 OLS ------------------------------------------------------
+model.ols = lm((log(X1_proc_comm_bike)) ~ (log(x4_asian_pr)) + scale(x4_black_pr) + 
+                 scale((X9_PLG_cars_Private)/X15_pop) + scale((X10sum_LCN_LCNpl)/x20roads) +
+                 Xcity)
+summary(model.ols)
+model.ols$residuals
+
+# 5 Read SHP files --------------------------------------------------------------------
+bor<-readOGR(".", "London_Borough_Excluding_MHW")
+bor<- spTransform(bor, CRS("+proj=longlat +datum=NAD83"))
+bor.df<-as.data.frame(bor)
+head(bor.df)
+dim(bor.df)
+###Make sure that boroughs in spatial data and csv data are sorted identically.
+head(data3D)
+
+# 6 Matrices ----------------------------------------------------------------
+crds<-coordinates(bor)
+colnames(crds)<-c("cx", "cy")
+# k nearest neigbours = knn matrix
+borroughs.knn<-knearneigh(crds, k=5)
+plot(bor)
+plot(knn2nb(borroughs.knn), crds, add=TRUE)
+borroughs.k.nb<-knn2nb(borroughs.knn)
+
+print(is.symmetric.nb(borroughs.k.nb))
+borroughs.k.sym.nb<-make.sym.nb(borroughs.k.nb)
+print(is.symmetric.nb(borroughs.k.sym.nb))
+
+borroughs.k.sym.listw<-nb2listw(borroughs.k.sym.nb)
+
+borroughs.k.nb
+borroughs.k.sym.listw
+
+# 14 Moran & LM  ----------------------------------------------
+res<-residuals(model.ols)
+lm.morantest(model.ols, borroughs.k.sym.listw)  
+moran.test(res, borroughs.k.sym.listw)
+lm.LMtests(model.ols, borroughs.k.sym.listw, test="all")
+
+# 15 Spatial Durbin models   ----------------------------------------------------------
+install.packages("spatialreg")
+library(spatialreg)
+form <- formula((log(X1_proc_comm_bike)) ~ (log(x4_asian_pr)) + scale(x4_black_pr) + 
+                  scale((X9_PLG_cars_Private)/X15_pop) + 
+                  scale((X10sum_LCN_LCNpl)/x20roads) + 
+                  Xcity)
+GNS_1 <- sacsarlm(form, data=data3D, listw=borroughs.k.sym.listw, type="sacmixed")
+summary(GNS_1, Nagelkerke=TRUE)
+SAC_1 <- sacsarlm(form, data=data3D, listw=borroughs.k.sym.listw)
+summary(SAC_1)
+SAC_1$residuals
+SDEM_1 <- errorsarlm(form, data=data3D, listw=borroughs.k.sym.listw, etype="emixed") # with spatial lags of X
+summary(SDEM_1, Nagelkerke=TRUE)
+SEM_1 <- errorsarlm(form, data=data3D, listw=borroughs.k.sym.listw) # no spatial lags of X
+summary(SEM_1, Nagelkerke=TRUE)
+SDM_1 <- lagsarlm(form, data=data3D, listw=borroughs.k.sym.listw, type="mixed") # with spatial lags of X
+summary(SDM_1, Nagelkerke=TRUE)
+SAR_1 <- lagsarlm(form, data=data3D, listw=borroughs.k.sym.listw) # no spatial lags of X
+summary(SAR_1, Nagelkerke=TRUE)
+SLX_1 <- lmSLX(form, data=data3D, listw=borroughs.k.sym.listw)
+summary(SLX_1) 
+
+# 20 More information --------------------------------------------------------
+
+#Bednarowska-Michaiel, Z. (2023). Ethnic inequalities in cycling to work in London 
+#- mobility injustice and regional approach. Regional Studies, Regional Science, 
+#VOL. 10, NO. 1, 475–488. http://dx.doi.org/10.1080/21681376.2023.2186802.
+
+#Please note this is NOT a full script for all the analysis and modeling that was
+#presented in the paper! My original R script was 2344 rows long. :-)
+
+#The script does not include inter alia data cleaning/transformation, OLS specification,
+#various configurations of GNS models, OLS/spatial model diagnosis, or spatial statistics 
+#or calculating spatial impacts. 
+#The code for spatial part was modeled afer Kopczewska 2017. If you want to 
+#learn spatial econometrics, please see her newest textbook ed. Kopczewska 2020. 
+#'Applied Spatial Statistics and Econometrics: Data Analysis in R' (Routledge, 2020).
