@@ -16,4 +16,5 @@ To cite the paper:
 
 Bednarowska-Michaiel, Z. (2023). Ethnic inequalities in cycling to work in London - mobilities injustice and regional approach. Regional Studies, Regional Science, VOL. 10, NO. 1, 475–488. http://dx.doi.org/10.1080/21681376.2023.2186802.
 
-To cite the dataset:
+To cite the dataset or R script:
+https://zenodo.org/badge/latestdoi/388771527
